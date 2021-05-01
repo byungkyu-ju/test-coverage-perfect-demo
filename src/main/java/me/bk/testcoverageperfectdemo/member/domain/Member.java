@@ -34,5 +34,4 @@ public class Member {
 		this.password = password;
 		this.nickname = nickname;
 	}
-
 }

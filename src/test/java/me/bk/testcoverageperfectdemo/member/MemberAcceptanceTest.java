@@ -11,6 +11,7 @@ import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import me.bk.testcoverageperfectdemo.AcceptanceTest;
+import me.bk.testcoverageperfectdemo.common.exception.dto.ErrorResponse;
 import me.bk.testcoverageperfectdemo.member.dto.CreateMemberRequest;
 import me.bk.testcoverageperfectdemo.member.dto.FindMemberResponse;
 
@@ -43,6 +44,54 @@ public class MemberAcceptanceTest extends AcceptanceTest {
 
 	}
 
+	@DisplayName("회원 가입시 중복이메일 에러")
+	@Test
+	void createMemberExceptionWithDuplicateEmail(){
+		// given
+		회원_생성(EMAIL, PASSWORD, PASSWORD_CONFIRM, NICK_NAME);
+
+		// when
+		ExtractableResponse<Response> duplicateEmailResponse = 회원_생성(EMAIL, PASSWORD, PASSWORD_CONFIRM, NICK_NAME);
+
+		// then
+		중복된_이메일(duplicateEmailResponse);
+	}
+
+	private void 중복된_이메일(ExtractableResponse<Response> response) {
+		ErrorResponse errorResponse = response.body().jsonPath().getObject(".", ErrorResponse.class);
+
+		assertThat(HttpStatus.BAD_REQUEST.value()).isEqualTo(response.statusCode());
+		assertThat("중복된 이메일이 존재합니다.").isEqualTo(errorResponse.getMessage());
+		assertThat("ILLEGAL_ARGUMENT_EXCEPTION").isEqualTo(errorResponse.getCode());
+
+	}
+
+	@DisplayName("존재하지 않는 회원 조회 에러")
+	@Test
+	void findMemberNotExistMemberException(){
+		//given
+		ExtractableResponse<Response> createMemberResponse = 회원_생성(EMAIL, PASSWORD, PASSWORD_CONFIRM, NICK_NAME);
+
+		// when
+		String createdMemberLocation = createMemberResponse.response().getHeader("Location");
+		String[] splitLocation = createdMemberLocation.split("/");
+		String invalidMemberLocation = splitLocation[1] + "/" + Long.parseLong("2");
+
+		ExtractableResponse<Response> findMemberResponse = Location으로_URL_호출(invalidMemberLocation);
+
+		// then
+		찾을_수_없는_회원(findMemberResponse);
+
+	}
+
+	private void 찾을_수_없는_회원(ExtractableResponse<Response> response) {
+		ErrorResponse errorResponse = response.body().jsonPath().getObject(".", ErrorResponse.class);
+
+		assertThat(HttpStatus.BAD_REQUEST.value()).isEqualTo(response.statusCode());
+		assertThat("회원정보를 찾을 수 없습니다.").isEqualTo(errorResponse.getMessage());
+		assertThat("ILLEGAL_ARGUMENT_EXCEPTION").isEqualTo(errorResponse.getCode());
+	}
+
 	private void 저장된_회원이_조회됨(ExtractableResponse<Response> response) {
 		assertThat(HttpStatus.OK.value()).isEqualTo(response.statusCode());
 
@@ -53,18 +102,21 @@ public class MemberAcceptanceTest extends AcceptanceTest {
 	}
 
 	private ExtractableResponse<Response> 저장된_회원을_조회(ExtractableResponse<Response> response) {
-		String uri = response.header("Location");
+		return Location으로_URL_호출(response.header("Location"));
+	}
+
+	private ExtractableResponse<Response> Location으로_URL_호출(String location) {
 		return RestAssured
 			.given().log().all()
 			.accept(MediaType.APPLICATION_JSON_VALUE)
-			.when().get(uri)
+			.when().get(location)
 			.then().log().all()
 			.extract();
 	}
 
 	public static ExtractableResponse<Response> 회원_생성(String email, String password, String passwordConfirm,
 		String nickname) {
-		CreateMemberRequest request = CreateMemberRequest.builder()
+		CreateMemberRequest request = CreateMemberRequest.createMemberRequestBuilder()
 			.email(email)
 			.password(password)
 			.passwordConfirm(passwordConfirm)

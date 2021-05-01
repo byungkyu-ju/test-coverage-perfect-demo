@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import me.bk.testcoverageperfectdemo.common.exception.dto.ErrorResponse;
-import me.bk.testcoverageperfectdemo.common.exception.impl.CommonIllegalArgumentException;
+import me.bk.testcoverageperfectdemo.common.exception.impl.CommonBadRequestException;
 
 /**
  * @author : byungkyu
@@ -14,8 +14,8 @@ import me.bk.testcoverageperfectdemo.common.exception.impl.CommonIllegalArgument
  **/
 @RestControllerAdvice
 public class CommonExceptionHandler {
-	@ExceptionHandler(CommonIllegalArgumentException.class)
-	protected ResponseEntity methodArgumentNotValidException(CommonIllegalArgumentException exception) {
+	@ExceptionHandler(CommonBadRequestException.class)
+	protected ResponseEntity<ErrorResponse> commonBadRequestException(CommonBadRequestException exception) {
 		return ResponseEntity.badRequest().body(new ErrorResponse(exception));
 	}
 

@@ -30,13 +30,13 @@ public class MemberController {
 	private final MemberService memberService;
 
 	@PostMapping
-	public ResponseEntity createMember(final @Valid @RequestBody CreateMemberRequest createMemberRequest) {
+	public ResponseEntity<Long> createMember(final @Valid @RequestBody CreateMemberRequest createMemberRequest) {
 		Long savedId = memberService.createMember(createMemberRequest);
 		return ResponseEntity.created(URI.create("/members/" + savedId)).build();
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity findMember(final @PathVariable Long id) {
+	public ResponseEntity<FindMemberResponse> findMember(final @PathVariable Long id) {
 		FindMemberResponse response = memberService.findMember(id);
 		return ResponseEntity.ok().body(response);
 	}
