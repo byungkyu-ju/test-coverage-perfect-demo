@@ -7,19 +7,19 @@ import me.bk.testcoverageperfectdemo.common.exception.CommonException;
  * @date : 2021/04/30
  * @description :
  **/
-public class CommonIllegalArgumentException extends CommonException {
+public class CommonBadRequestException extends CommonException {
 	public static final String ERROR_CODE = "ILLEGAL_ARGUMENT_EXCEPTION";
 	public static final String ERROR_MESSAGE = "입력값이 올바르지 않습니다.";
 
-	private String errorCode;
-	private String errorMessage;
+	private final String errorCode;
+	private final String errorMessage;
 
-	public CommonIllegalArgumentException() {
+	public CommonBadRequestException() {
 		this.errorCode = ERROR_CODE;
 		this.errorMessage = ERROR_MESSAGE;
 	}
 
-	public CommonIllegalArgumentException(String message) {
+	public CommonBadRequestException(String message) {
 		this.errorCode = ERROR_CODE;
 		this.errorMessage = message;
 	}

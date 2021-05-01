@@ -5,7 +5,6 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,9 +15,7 @@ import lombok.NoArgsConstructor;
  * @description :
  **/
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 @Getter
-@Builder
 public class CreateMemberRequest {
 	@NotNull
 	@NotEmpty
@@ -33,4 +30,12 @@ public class CreateMemberRequest {
 	@NotNull
 	@NotEmpty
 	private String nickname;
+
+	@Builder(builderMethodName = "createMemberRequestBuilder")
+	public CreateMemberRequest(String email, String password, String passwordConfirm, String nickname) {
+		this.email = email;
+		this.password = password;
+		this.passwordConfirm = passwordConfirm;
+		this.nickname = nickname;
+	}
 }

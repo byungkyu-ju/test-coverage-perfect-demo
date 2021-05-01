@@ -2,6 +2,7 @@ plugins {
     id 'org.springframework.boot' version '2.4.5'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
+    id 'jacoco'
 }
 
 group = 'me.bk'
@@ -16,6 +17,40 @@ configurations {
 
 repositories {
     mavenCentral()
+}
+
+jacoco {
+    toolVersion = "0.8.5"
+}
+
+jacocoTestReport {
+    reports {
+        html.enabled true
+        csv.enabled true
+        xml.enabled false
+    }
+
+    finalizedBy 'jacocoTestCoverageVerification'
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            enabled = true
+            element = 'CLASS'
+            // includes = []
+
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.84
+            }
+
+            excludes = []
+        }
+
+
+    }
 }
 
 dependencies {
@@ -35,8 +70,13 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-security'
     testImplementation 'org.springframework.security:spring-security-test'
+
+    // https://mvnrepository.com/artifact/org.powermock/powermock-api-mockito2
+    testImplementation group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.9'
+
 }
 
 test {
     useJUnitPlatform()
+    finalizedBy 'jacocoTestReport'
 }

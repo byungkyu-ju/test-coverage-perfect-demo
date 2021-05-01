@@ -18,7 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import me.bk.testcoverageperfectdemo.common.config.CommonPasswordEncoder;
-import me.bk.testcoverageperfectdemo.common.exception.impl.CommonIllegalArgumentException;
+import me.bk.testcoverageperfectdemo.common.exception.impl.CommonBadRequestException;
 import me.bk.testcoverageperfectdemo.member.application.MemberService;
 import me.bk.testcoverageperfectdemo.member.domain.Member;
 import me.bk.testcoverageperfectdemo.member.dto.CreateMemberRequest;
@@ -48,7 +48,7 @@ class MemberControllerTest {
 		//given
 		Long dummyId = 1L;
 
-		CreateMemberRequest request = CreateMemberRequest.builder()
+		CreateMemberRequest request = CreateMemberRequest.createMemberRequestBuilder()
 			.email(EMAIL)
 			.password(PASSWORD)
 			.passwordConfirm(PASSWORD_CONFIRM)
@@ -64,7 +64,7 @@ class MemberControllerTest {
 		MemberController memberController = new MemberController(memberService);
 
 		// when
-		ResponseEntity createMemberResponse = memberController.createMember(request);
+		ResponseEntity<Long> createMemberResponse = memberController.createMember(request);
 
 		// then
 		URI uri = createMemberResponse.getHeaders().getLocation();
@@ -77,7 +77,7 @@ class MemberControllerTest {
 	@Test
 	void createMemberErrorWithDuplicateEmail() {
 		//given
-		CreateMemberRequest request = CreateMemberRequest.builder()
+		CreateMemberRequest request = CreateMemberRequest.createMemberRequestBuilder()
 			.email(EMAIL)
 			.password(PASSWORD)
 			.passwordConfirm(PASSWORD_CONFIRM)
@@ -96,9 +96,7 @@ class MemberControllerTest {
 		MemberController memberController = new MemberController(memberService);
 
 		// when - then
-		assertThatThrownBy(() -> {
-			memberController.createMember(request);
-		}).isInstanceOf(CommonIllegalArgumentException.class)
+		assertThatThrownBy(() -> memberController.createMember(request)).isInstanceOf(CommonBadRequestException.class)
 			.extracting("errorMessage")
 			.isEqualTo("중복된 이메일이 존재합니다.");
 	}
@@ -119,12 +117,13 @@ class MemberControllerTest {
 		MemberController memberController = new MemberController(memberService);
 
 		// when
-		ResponseEntity findMemberResponse = memberController.findMember(dummyId);
+		ResponseEntity<FindMemberResponse> findMemberResponse = memberController.findMember(dummyId);
 
 		// then
 		assertThat(HttpStatus.OK).isEqualTo(findMemberResponse.getStatusCode());
-		FindMemberResponse results = (FindMemberResponse)findMemberResponse.getBody();
+		FindMemberResponse results = findMemberResponse.getBody();
 
+		assert results != null;
 		assertThat(mockMember.getId()).isEqualTo(results.getId());
 		assertThat(mockMember.getEmail()).isEqualTo(results.getEmail());
 		assertThat(mockMember.getNickname()).isEqualTo(results.getNickname());
@@ -137,9 +136,7 @@ class MemberControllerTest {
 		MemberService memberService = new MemberService(passwordEncoder, memberRepository);
 		MemberController memberController = new MemberController(memberService);
 		// then
-		assertThatThrownBy(() -> {
-			memberController.findMember(any());
-		}).isInstanceOf(CommonIllegalArgumentException.class)
+		assertThatThrownBy(() -> memberController.findMember(any())).isInstanceOf(CommonBadRequestException.class)
 			.extracting("errorMessage")
 			.isEqualTo("회원정보를 찾을 수 없습니다.");
 
