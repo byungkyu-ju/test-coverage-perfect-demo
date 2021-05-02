@@ -109,5 +109,5 @@ cover test, jacocotest, openapi3 all
 
 
 ## ETC
-- 테스트 커버리지 100% (Speaker 이용준-토스뱅크) 
+- 테스트 커버리지 100% (Speaker 이응준-토스뱅크) 
 - https://toss.im/slash-21/sessions/1-6 , https://youtu.be/jdlBu2vFv58
