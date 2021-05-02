@@ -2,6 +2,8 @@
 
 테스트 100% 커버리지 시도해보기
 
+[TOSS SLASH21 — 테스트커버리지 100% 요약/DEMO](https://byungkyu-ju.medium.com/toss-slash21-%ED%85%8C%EC%8A%A4%ED%8A%B8%EC%BB%A4%EB%B2%84%EB%A6%AC%EC%A7%80-100-%EC%9A%94%EC%95%BD-demo-2fb8b52cf2a9)
+
 ## How to build
 
 ```
