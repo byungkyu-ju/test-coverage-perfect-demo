@@ -1,15 +1,22 @@
 package me.bk.testcoverageperfectdemo.member;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.restdocs.restassured3.RestAssuredRestDocumentation.*;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
+import com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper;
+
 import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import io.restassured.response.ValidatableResponse;
 import me.bk.testcoverageperfectdemo.AcceptanceTest;
 import me.bk.testcoverageperfectdemo.common.exception.dto.ErrorResponse;
 import me.bk.testcoverageperfectdemo.member.dto.CreateMemberRequest;
@@ -27,21 +34,58 @@ public class MemberAcceptanceTest extends AcceptanceTest {
 	public static final String PASSWORD_CONFIRM = "password";
 	public static final String NICK_NAME = "tester";
 
-	@DisplayName("회원가입을 하면 저장이 된다.")
+	@DisplayName("회원가입을 할 수 있다")
 	@Test
-	void 회원가입을_하면_저장이_된다() {
-		// when
-		ExtractableResponse<Response> createMemberResponse = 회원_생성(EMAIL, PASSWORD, PASSWORD_CONFIRM, NICK_NAME);
+	void 회원가입을_할_수_있다() {
+		//given
+		CreateMemberRequest request = CreateMemberRequest.createMemberRequestBuilder()
+			.email(EMAIL)
+			.password(PASSWORD)
+			.passwordConfirm(PASSWORD_CONFIRM)
+			.nickname(NICK_NAME)
+			.build();
 
-		// then
-		회원이_등록됨(createMemberResponse);
+		// when - then
+		RestAssured
+			.given(getSpec())
+			.accept(ContentType.JSON)
+			.filter(RestAssuredRestDocumentationWrapper.document("create member", requestFields(
+				fieldWithPath("email").description("email"),
+				fieldWithPath("password").description("password"),
+				fieldWithPath("passwordConfirm").description("passwordConfirm"),
+				fieldWithPath("nickname").description("nickname")
+			)))
+			.contentType(MediaType.APPLICATION_JSON_VALUE)
+			.body(request)
+			.when().post("/members")
+			.then()
+			.assertThat().statusCode(201);
+	}
 
-		// when
-		ExtractableResponse<Response> findMemberResponse = 저장된_회원을_조회(createMemberResponse);
+	@DisplayName("등록된 회원을 조회할 수 있다")
+	@Test
+	void 등록된_회원을_조회할_수_있다(){
+		// given
+		ExtractableResponse<Response> createdMemberResponse = 회원_생성(EMAIL, PASSWORD, PASSWORD_CONFIRM, NICK_NAME);
+		String location = createdMemberResponse.header("Location");
+		String[] splitLocation = location.split("/");
 
-		// then
-		저장된_회원이_조회됨(findMemberResponse);
-
+		ValidatableResponse body = RestAssured
+			.given(getSpec())
+			.accept(ContentType.JSON)
+			.filter(RestAssuredRestDocumentationWrapper.document("find member by id", pathParameters(
+				parameterWithName("id").description("member id")
+			),
+				responseFields(
+					fieldWithPath("id").description("id"),
+					fieldWithPath("email").description("member email"),
+					fieldWithPath("nickname").description("member nickname")
+				)
+				))
+			.contentType(MediaType.APPLICATION_JSON_VALUE)
+			.when().get("/members/{id}", splitLocation[2])
+			.then()
+			.assertThat().statusCode(200);
 	}
 
 	@DisplayName("회원 가입시 중복이메일 에러")
@@ -56,6 +100,7 @@ public class MemberAcceptanceTest extends AcceptanceTest {
 		// then
 		중복된_이메일(duplicateEmailResponse);
 	}
+
 
 	private void 중복된_이메일(ExtractableResponse<Response> response) {
 		ErrorResponse errorResponse = response.body().jsonPath().getObject(".", ErrorResponse.class);
@@ -124,7 +169,8 @@ public class MemberAcceptanceTest extends AcceptanceTest {
 			.build();
 
 		return RestAssured
-			.given().log().all()
+			.given()
+			.log().all()
 			.contentType(MediaType.APPLICATION_JSON_VALUE)
 			.body(request)
 			.when().post("/members")
