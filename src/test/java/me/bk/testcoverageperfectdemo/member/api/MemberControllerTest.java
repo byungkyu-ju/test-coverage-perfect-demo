@@ -17,6 +17,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import io.restassured.RestAssured;
+import me.bk.testcoverageperfectdemo.CommonSpringRestdocsTest;
 import me.bk.testcoverageperfectdemo.common.config.CommonPasswordEncoder;
 import me.bk.testcoverageperfectdemo.common.exception.impl.CommonBadRequestException;
 import me.bk.testcoverageperfectdemo.member.application.MemberService;
@@ -31,7 +33,7 @@ import me.bk.testcoverageperfectdemo.member.repository.MemberRepository;
  * @description :
  **/
 @ExtendWith(MockitoExtension.class)
-class MemberControllerTest {
+class MemberControllerTest{
 	private CommonPasswordEncoder passwordEncoder;
 
 	@Mock
@@ -71,6 +73,7 @@ class MemberControllerTest {
 		assertThat(HttpStatus.CREATED).isEqualTo(createMemberResponse.getStatusCode());
 		assertThat(uri).isNotNull();
 		assertThat(mockMember.getId()).isEqualTo(Long.parseLong(uri.getPath().split("/")[2]));
+
 	}
 
 	@DisplayName("회원 생성시 중복이메일 에러")

@@ -24,6 +24,7 @@ import me.bk.testcoverageperfectdemo.member.dto.FindMemberResponse;
  **/
 @RestController
 @RequiredArgsConstructor
+
 @RequestMapping("/members")
 public class MemberController {
 

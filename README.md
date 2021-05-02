@@ -8,7 +8,20 @@
  ./gradlew build
 ```
 
-## API Spec
+## How to test
+
+cover test, jacocotest, openapi3 all
+```
+ ./gradlew openapi3
+```
+
+
+## API Spec - example
+
+/static/swagger.html
+![image info](screenshot.png)
+
+## API Spec - manual typo
 
 ### 1. 회원가입
 
@@ -85,6 +98,12 @@
 - JDBC URL : `jdbc:h2:mem:testCoveragePerfectDemo`
 - User Name : `sa`
 - Password: `sa`
+
+## dependency
+
+- rest-assured
+- restdocs-restassured
+- restdocs-api-spec-restassured
 
 
 ## ETC

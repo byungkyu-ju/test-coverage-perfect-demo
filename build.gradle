@@ -3,6 +3,8 @@ plugins {
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
     id 'jacoco'
+    id 'org.asciidoctor.convert' version '1.5.8'
+    id 'com.epages.restdocs-api-spec' version '0.11.3'
 }
 
 group = 'me.bk'
@@ -17,6 +19,7 @@ configurations {
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 jacoco {
@@ -43,14 +46,16 @@ jacocoTestCoverageVerification {
             limit {
                 counter = 'LINE'
                 value = 'COVEREDRATIO'
-                minimum = 0.84
+                minimum = 0.99
             }
-
             excludes = []
         }
 
-
     }
+}
+
+ext {
+    set('snippetsDir', file("build/generated-snippets"))
 }
 
 dependencies {
@@ -71,12 +76,28 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     testImplementation 'org.springframework.security:spring-security-test'
 
-    // https://mvnrepository.com/artifact/org.powermock/powermock-api-mockito2
-    testImplementation group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.9'
+    testImplementation 'org.springframework.restdocs:spring-restdocs-restassured'
+    testCompile('com.epages:restdocs-api-spec-restassured:0.11.3')
 
+}
+
+openapi3 {
+    server = 'https://localhost:8080'
+    title = 'TEST-COVERAGE-PERFECT-DEMO'
+    description = 'we need coverage perfect 100%'
+    tagDescriptionsPropertiesFile = 'src/test/resources/openapi3-tags.yaml'
+    outputDirectory="src/main/resources/static/api-spec"
+    version = '0.1.0'
+    format = 'yaml'
 }
 
 test {
     useJUnitPlatform()
     finalizedBy 'jacocoTestReport'
+    outputs.dir snippetsDir
+}
+
+asciidoctor {
+    inputs.dir snippetsDir
+    dependsOn test
 }
